@@ -1,5 +1,5 @@
 <template>
-    <div class="center content-box">
+    <div class="center content-box" v-if="flight">
         <h3>{{ flight.destination }} ({{ flight.flightNumber }})</h3>
         <p><img :src="getDestinationImageUrl(flight.destination)" width="960"></p>
         <ul>

@@ -1,36 +1,44 @@
 <template>
     <div class="home">
         <ul class="flex-list">
-            <FlightWidget v-for="f in flights" :flight="f"/>
+            <FlightWidget v-for="f in flights" :flight="f" :key="f.id" />
         </ul>
     </div>
 </template>
 
 <script lang="ts" setup>
 import FlightWidget from "@/components/FlightWidget.vue";
-import {ref} from "vue";
+import { ref } from "vue";
 import axios from "axios";
-import {FlightModel} from "@/models/flight.model";
-
-const page = ref(0);
+import { FlightModel } from "@/models/flight.model";
 const max = ref(0);
 const flights = ref<FlightModel[]>([]);
 
-loadFlightData();
+let busy = false;
+let page = 0;
 
 function loadFlightData() {
-    axios.get('https://flight.pequla.com/api/flight?size=30&sort=scheduledAt,asc&page=' + page.value)
-        .then(rsp => {
-            if (!rsp.data.last) {
-                page.value = page.value + 1
-            }
-            max.value = rsp.data.totalPages - 1
-            flights.value = flights.value.concat(rsp.data.content)
-        })
+    if (busy) return
+    busy = true
+
+    const url = 'https://flight.pequla.com/api/flight?size=30&sort=scheduledAt,asc&page=' + page
+    axios.get(url).then(rsp => {
+        if (!rsp.data.last) {
+            page++
+        }
+        max.value = rsp.data.totalPages - 1
+        flights.value.push(...rsp.data.content)
+        busy = false
+    })
 }
 
+loadFlightData();
+
+// const scrollList = ref<HTMLElement>()
+// useInfiniteScroll(scrollList, async () => await loadFlightData(), { distance: 15 })
+
 window.addEventListener('scroll', () => {
-    if (window.scrollY + window.innerHeight >= document.body.scrollHeight - 50) {
+    if (window.scrollY + window.innerHeight >= document.body.scrollHeight - 100) {
         // Ready to load new data
         loadFlightData()
     }
