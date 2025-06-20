@@ -12,26 +12,28 @@
             <li>Airport terminal: {{ flight.terminal }}</li>
         </ul>
     </div>
+    <p v-else-if="error">Error: {{ error }}</p>
+    <p v-else>Loading... Please wait!</p>
 </template>
 
 <script setup lang="ts">
-import {useRoute} from "vue-router";
-import {ref} from "vue";
-import {FlightModel} from "@/models/flight.model";
-import axios from "axios";
+import { useRoute } from "vue-router";
+import { ref } from "vue";
+import { FlightModel } from "@/models/flight.model";
+import { FlightService } from "@/services/flight.service";
 
-const route: any = useRoute()
-const id = route.params.id;
-const flight = ref<FlightModel>();
+const route = useRoute()
+const id = Number(route.params.id)
+const error = ref<string>()
+const flight = ref<FlightModel>()
 
-axios.get("https://flight.pequla.com/api/flight/" + id)
+FlightService.getFlightById(id)
     .then(rsp => flight.value = rsp.data)
+    .catch(e => error.value = e.message)
 
 function getDestinationImageUrl(dest: string) {
     return 'https://img.pequla.com/destination/' + dest.toLowerCase().split(' ')[0] + '.jpg';
 }
 </script>
 
-<style scoped>
-
-</style>
+<style scoped></style>

@@ -40,6 +40,7 @@ body {
     border-radius: 25px;
     padding: 1rem;
     width: 320px;
+    cursor: pointer;
 }
 
 .content-box {
